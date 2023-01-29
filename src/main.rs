@@ -9,7 +9,7 @@ const SNAKE_HEAD_COLOR: Color = Color::rgb(0.7, 0.7, 0.7);
 	pub struct SnakeHead;
 
 #[derive(Component, Clone, Copy, PartialEq, Eq)]
-struct Position {
+pub struct Position {
 	x: i32,
 	y: i32,
 }
@@ -31,6 +31,7 @@ impl Size {
 
 fn main() {
     App::new()
+		.insert_resource(ClearColor(Color::rgb(0.04, 0.04, 0.04)))
 		.add_startup_system(setup_camera)
 		.add_startup_system(spawn_snake)
 		.add_system(snake_movement)
@@ -40,7 +41,14 @@ fn main() {
 			.with_system(position_translation)
 			.with_system(size_scaling)
 		)
-        .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultPlugins.set(WindowPlugin {
+			window: WindowDescriptor {
+				width: 500.0,
+				height: 500.0,
+				..default()
+			},
+			..default()
+		}))
         .run();
 }
 
@@ -94,22 +102,22 @@ pub fn spawn_snake(mut commands: Commands) {
 
 // Moves the snaek around the map
 pub fn snake_movement(keyboard_input: Res<Input<KeyCode>>,
-	mut head_positions: Query<&mut Transform, With<SnakeHead>>) {
-	for mut transform in head_positions.iter_mut() {
+	mut head_positions: Query<&mut Position, With<SnakeHead>>) {
+	for mut pos in head_positions.iter_mut() {
 		if keyboard_input.pressed(KeyCode::Left) {
-			transform.translation.x -= 2.0;
+			pos.x -= 1;
 		}
 		
 		if keyboard_input.pressed(KeyCode::Right) {
-			transform.translation.x += 2.0;
+			pos.x += 1;
 		}
 		
 		if keyboard_input.pressed(KeyCode::Up) {
-			transform.translation.y += 2.0;
+			pos.y += 1;
 		}
 		
 		if keyboard_input.pressed(KeyCode::Down) {
-			transform.translation.y -= 2.0;
+			pos.y -= 1;
 		}
 	}
 }
